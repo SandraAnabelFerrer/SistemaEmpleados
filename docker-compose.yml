@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  ui:
+    image: ${DOCKER_REGISTRY-}ui
+    build:
+      context: .
+      dockerfile: UI/Dockerfile
+
+  microservpersona:
+    image: ${DOCKER_REGISTRY-}microservpersona
+    build:
+      context: .
+      dockerfile: microservPersona/Dockerfile
+
+
+  microservpares:
+    image: ${DOCKER_REGISTRY-}microservpares
+    build:
+      context: .
+      dockerfile: microservPares/Dockerfile
+
+  microservdpto:
+    image: ${DOCKER_REGISTRY-}microservdpto
+    build:
+      context: .
+      dockerfile: microservDpto/Dockerfile

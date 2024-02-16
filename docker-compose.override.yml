@@ -1,0 +1,44 @@
+version: '3.4'
+
+services:
+  ui:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+     
+    ports:
+      - "80:80"
+
+
+
+    depends_on:
+        - microservpersona
+        - microservpares
+        - microservdpto
+
+
+   
+  microservpersona:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+     
+    ports:
+      - "5000:80"
+     
+
+  microservpares:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+     
+    ports:
+      - "6000:80"
+
+  microservdpto:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+     
+    ports:
+      - "4000:80"
+
+
+      
+   
