@@ -37,7 +37,19 @@ public partial class EmpleadosContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
         });
+        modelBuilder.Entity<Departamento>(entity =>
+             {
+                 entity.ToTable("departamento");
 
+                 entity.Property(e => e.Id)
+                     .ValueGeneratedNever()
+                     .HasColumnName("ID");
+                 entity.Property(e => e.Nombre)
+                     .HasMaxLength(30)
+                     .IsUnicode(false);
+             });
+        
+    
         OnModelCreatingPartial(modelBuilder);
     }
 

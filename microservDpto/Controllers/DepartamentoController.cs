@@ -8,6 +8,9 @@ namespace microservDpto.Controllers
     [Route("api/[controller]")]
     public class DepartamentoController : ControllerBase
     {
+
+        EmpleadosContext context = new EmpleadosContext();
+
         private static List<Departamento> departamentos = new List<Departamento>
         {
             new Departamento { Id = 1, Nombre = "Ventas" },
