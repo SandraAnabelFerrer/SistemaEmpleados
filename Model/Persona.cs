@@ -11,6 +11,9 @@ public partial class Persona
 
     public int? Edad { get; set; }
 
+
+    public int DepartamentoId { get; set; } // Clave foránea
+
     
 
 }

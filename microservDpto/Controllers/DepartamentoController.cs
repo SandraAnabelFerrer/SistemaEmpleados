@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Model;
 using System;
 
@@ -6,26 +7,57 @@ namespace microservDpto.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DepartamentoController : ControllerBase
+    public class EmpleadoController : ControllerBase
     {
-
         EmpleadosContext context = new EmpleadosContext();
 
-        private static List<Departamento> departamentos = new List<Departamento>
-        {
-            new Departamento { Id = 1, Nombre = "Ventas" },
-            new Departamento { Id = 2, Nombre = "TI" },
-            new Departamento { Id = 3, Nombre = "Recursos Humanos" },
-            new Departamento { Id = 4, Nombre = "Contabilidad" },
-            new Departamento { Id = 5, Nombre = "Tesorería" },
-            new Departamento { Id = 6, Nombre = "Administracion" },
-            new Departamento { Id = 7, Nombre = "Marketing" },
-        };
-
+        // GET: api/<DepartamentoController>
         [HttpGet]
-        public ActionResult<IEnumerable<Departamento>> GetDepartamentos()
+        public async Task<List<Departamento>> Get()
         {
-            return Ok(departamentos);
+            EmpleadosContext context = new EmpleadosContext();
+            List<Departamento> departamento = context.Departamentos.ToList();
+
+            return departamento;
+        }
+
+       
+
+        // POST api/<DepartamentoController>
+        [HttpPost]
+        public void Post(Departamento value)
+        {
+            Console.WriteLine("Post");
+            Console.WriteLine(value);
+        }
+        // PUT api/<PersonaController>/5
+        [HttpPut("{id}")]
+        public void Put(int id, Departamento value)
+        {
+            Console.WriteLine("Put ID : " + id);
+            Console.WriteLine(value);
+        }
+        // DELETE api/<DepartamentoController>/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+            Console.WriteLine("Del ID : " + id);
+        }
+        [HttpPost("CrearDepartamento")]
+        public async Task<IActionResult> CrearDepartamento([FromBody] Departamento departamento)
+        {
+            try
+            {
+                context.Departamentos.Add(departamento);
+                await context.SaveChangesAsync();
+
+                return Ok(departamento); // Devuelve un departamento creada si es necesario
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+
         }
     }
 }

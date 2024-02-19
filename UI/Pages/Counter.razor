@@ -5,160 +5,205 @@
 @using System.Net.Http;
 @inject IJSRuntime JSRuntime
 <body style="background-color:purple ">
-<div class=" fs-2 p-3 mb-2 bg-dark text-white  text-center">Reporte de Empleados</div>
+    <div class=" fs-2 p-3 mb-2 bg-dark text-white  text-center">Reporte de Empleados</div>
 
 
+
+    <button type="button" class="btn btn-outline-info" @onclick="CargarPersonas">Empleados Activos</button>
     
-    <button type="button" class="btn btn-outline-info" @onclick="CargarPersonas">Reporte</button>
-    <button type="button" class="btn btn-outline-info" @onclick="SetPersona">Cargar Empleado</button>
     <button type="button" class="btn btn-outline-info" @onclick="ReiniciarAplicacion">Reiniciar</button>
 
-<div class="alert alert-primary" role="alert">@msjPersona</div>
-    
+    <div class="alert alert-primary" role="alert">@msjPersona</div>
 
 
-@if (personas != null)
-{
-    <table class="table table-dark table-hover">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-             
-                <th>Edad</th>
-                <th>Departamento</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var _persona in personas)
-            {
+
+    @if (personas != null)
+    {
+        <table class="table table-dark table-hover">
+            <thead>
                 <tr>
-                    <td>@_persona.Id</td>
-                    <td>@_persona.Nombre</td>
-                    <td>@_persona.Edad</td>
-                    <td>@ObtenerNombreDepartamento(_persona.Id)</td>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Edad</th>
+                    <th>Departamento_Persona</th>
                 </tr>
-            }
-        </tbody>
-
-    </table>
-    
-
-}
-
-@code {
-    private String msjPersona;
-    private List<Persona> personas;
-    private List<Departamento> departamentos;
-    private HttpClient httpClient;
-    private int personaIndex = 0;
-
-    protected override async Task OnInitializedAsync()
-    {
-        httpClient = new HttpClient();
-        personas = new List<Persona>(); // Inicializar la lista de personas vacía.
-        await CargarDepartamentos();
-        
+                
+           
+               
+            </thead>
+            <tbody>
+                @foreach (var _persona in personas)
+                {
+                    <tr>
+                        <td>@_persona.Id</td>
+                        <td>@_persona.Nombre</td>
+                        <td>@_persona.Edad</td>
+                        <td></td>
+                    </tr>
+                }
+                
+            </tbody>
+        </table>
     }
 
-
-    private async Task CargarPersonas()
+    <button type="button" class="btn btn-outline-info" @onclick="CargarDepartamentos">Cargar Departamentos</button>
+     @if (departamentos != null)
     {
-        try
-        {
-            var result = await httpClient.GetAsync("http://host.docker.internal:5000/api/Persona");
-            if (result.IsSuccessStatusCode)
-            {
-                var resultadoServicio = await result.Content.ReadAsStringAsync();
-                personas = JsonSerializer.Deserialize<List<Persona>>(resultadoServicio, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine("Error en CargarPersonas: " + ex.Message);
-        }
+        <table class="table table-dark table-hover">
+            <thead>
+                    <tr><td colspan="2">Departamentos</td></tr>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                    </tr>
+            </thead>
+               
+         <tbody>
+                @foreach (var departamento in departamentos)
+                {
+                    <tr>
+                        <td>@departamento.Id</td>
+                        <td>@departamento.Nombre</td>
+                        
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+
     }
 
-    private async Task CargarDepartamentos()
-    {
-        try
+    @code {
+        private String msjPersona;
+        private List<Persona> personas;
+        private List<Departamento> departamentos;
+
+       
+
+
+
+        private async Task CargarPersonas()
         {
-            var result = await httpClient.GetAsync("http://host.docker.internal:4000/api/Departamento");
-            if (result.IsSuccessStatusCode)
+            using (var client = new HttpClient())
+
             {
-                var resultadoServicio = await result.Content.ReadAsStringAsync();
-                departamentos = JsonSerializer.Deserialize<List<Departamento>>(resultadoServicio, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                try
+                {
+                    var result = await client.GetAsync("http://host.docker.internal:5000/api/Persona");
+                    if (result.IsSuccessStatusCode)
+                    {
+                        var resultadoServicio = await result.Content.ReadAsStringAsync();
+                        personas = JsonSerializer.Deserialize<List<Persona>>(resultadoServicio, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+                        StateHasChanged();
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("Error en CargarPersonas: " + ex.Message);
+                }
             }
         }
-        catch (Exception ex)
+        private async Task CargarDepartamentos()
         {
-            Console.Error.WriteLine("Error en CargarDepartamentos: " + ex.Message);
-        }
-    }
-
-    private string ObtenerNombreDepartamento(int departamentoId)
-    {
-        if (departamentos != null)
-        {
-            var departamento = departamentos.FirstOrDefault(d => d.Id == departamentoId);
-            if (departamento != null)
+            using (var client = new HttpClient())
             {
-                return departamento.Nombre;
+                try
+                {
+                    var result1 = await client.GetAsync("http://host.docker.internal:4000/api/Departamento");
+                    if (result1.IsSuccessStatusCode)
+                    {
+                        var resultadoServicio1 = await result1.Content.ReadAsStringAsync();
+                        departamentos = JsonSerializer.Deserialize<List<Departamento>>(resultadoServicio1, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+
+
+                        StateHasChanged();
+
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("Error en CargarDepartamentos: " + ex.Message);
+                }
+            }
+        }
+       /* private string ObtenerNombreDepartamento(int departamentoId)
+        {
+            if (departamentos != null)
+            {
+                var departamento = departamentos.FirstOrDefault(d => d.Id == departamentoId);
+                if (departamento != null)
+                {
+                    return departamento.Nombre;
+                }
+                else
+                {
+                    Console.WriteLine($"Departamento no encontrado para el ID: {departamentoId}");
+                }
             }
             else
             {
-                Console.WriteLine($"Departamento no encontrado para el ID: {departamentoId}");
+                Console.WriteLine("Departamentos o ID de departamento nulos.");
             }
+            return "Desconocido";
         }
-        else
-        {
-            Console.WriteLine("Departamentos o ID de departamento nulos.");
-        }
-        return "Desconocido";
-    }
 
-    private async Task SetPersona()
-    {
-        using (var client = new HttpClient())
+        private async Task SetPersona()
         {
-            try
+            using (var client = new HttpClient())
             {
-                var persona = new Persona
+                try
+                {
+                    var persona = new Persona
                     {
-                        Id = 7, 
+                        Id = 7,
                         Nombre = "Sofia",
-                       
+
                         Edad = 27
                     };
 
-                var result = await client.PostAsJsonAsync("http://host.docker.internal:5000/api/Persona/", persona);
+                    var result = await client.PostAsJsonAsync("http://host.docker.internal:5000/api/Persona/", persona);
 
-                if (result.IsSuccessStatusCode)
-                {
-                    msjPersona = "Persona creada";
+                    if (result.IsSuccessStatusCode)
+                    {
+                        msjPersona = "Persona creada";
 
-                   await CargarPersonas(); // Actualiza la lista de personas si aún no se han cargado
+                        await CargarPersonas(); // Actualiza la lista de personas si aún no se han cargado
 
-                    StateHasChanged(); // Actualiza la vista
+                        StateHasChanged(); // Actualiza la vista
+                    }
+
+
+
                 }
+                catch (Exception ex)
+                {
+                    msjPersona = ex.Message;
+                    Console.Error.WriteLine("Error en SetPersona: " + ex.Message);
+                }
+            }
+
+        }
+
+        */
+        
 
 
-                
-            }
-            catch (Exception ex)
-            {
-                msjPersona = ex.Message;
-                Console.Error.WriteLine("Error en SetPersona: " + ex.Message);
-            }
+
+        private async Task ReiniciarAplicacion()
+        {
+            await JSRuntime.InvokeVoidAsync("location.reload");
         }
         
-    }
 
 
-    private async Task ReiniciarAplicacion()
-    {
-        await JSRuntime.InvokeVoidAsync("location.reload");
+
+
+
     }
-}
-          
+
 </body>

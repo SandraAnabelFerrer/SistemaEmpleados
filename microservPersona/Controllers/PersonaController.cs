@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace microservPersona.Controllers
 {
@@ -13,14 +14,14 @@ namespace microservPersona.Controllers
     public class PersonaController : ControllerBase
     {
         EmpleadosContext context = new EmpleadosContext();
-        
+
         // GET: api/<PersonaController>
         [HttpGet]
         public async Task<List<Persona>> Get()
 
         {
-        EmpleadosContext context = new EmpleadosContext();
-        List<Persona> personas = context.Personas.ToList();
+            EmpleadosContext context = new EmpleadosContext();
+            List<Persona> personas = context.Personas.ToList();
 
             return personas;
         }
@@ -59,13 +60,5 @@ namespace microservPersona.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
-
-
-
-
-
-
     }
-
-
 }
