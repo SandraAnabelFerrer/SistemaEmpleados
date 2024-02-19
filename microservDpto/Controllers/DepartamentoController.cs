@@ -7,7 +7,7 @@ namespace microservDpto.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmpleadoController : ControllerBase
+    public class DepartamentoController : ControllerBase
     {
         EmpleadosContext context = new EmpleadosContext();
 
