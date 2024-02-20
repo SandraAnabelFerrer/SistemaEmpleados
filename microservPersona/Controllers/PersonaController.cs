@@ -4,6 +4,7 @@ using Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 
@@ -40,13 +41,35 @@ namespace microservPersona.Controllers
             Console.WriteLine(value);
         }
         // DELETE api/<PersonaController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // [HttpDelete("{id}")]
+        // public void Delete(int id)
+        // {
+        //    Console.WriteLine("Del ID : " + id);
+
+        // }
+
+        // filtrar por persona
+        [HttpGet("FiltrarPorPersona/{personaId}")]
+        public async Task<IActionResult> FiltrarPorEmpleado(int personaId)
         {
-            Console.WriteLine("Del ID : " + id);
+            try
+            {
+                var personaFiltrada = await context.Personas
+                    .Where(p => p.Id == personaId)
+                    .ToListAsync();
+
+                return Ok(personaFiltrada);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
+
+
+
         [HttpPost("CrearPersona")]
-        public async Task<IActionResult> CrearEmpleado([FromBody] Persona persona)
+        public async Task<IActionResult> CrearPersona([FromBody] Persona persona)
         {
             try
             {
@@ -60,5 +83,32 @@ namespace microservPersona.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var persona = await context.Personas.FindAsync(id);
+
+                if (persona == null)
+                {
+                    return NotFound(); // Retorna un código 404 si la persona no se encuentra
+                }
+
+                context.Personas.Remove(persona);
+                await context.SaveChangesAsync();
+
+                return Ok(); // Retorna un código 200 OK si la eliminación es exitosa
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+
+
     }
 }
+

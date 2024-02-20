@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "UI\UI.csproj", "{99E142C7-8C2E-49FC-AD27-7A77E5CB09D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "microservDpto", "microservDpto\microservDpto.csproj", "{83CC185D-746A-4AA6-9A5A-370C7AAF56E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "microservDpto", "microservDpto\microservDpto.csproj", "{83CC185D-746A-4AA6-9A5A-370C7AAF56E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

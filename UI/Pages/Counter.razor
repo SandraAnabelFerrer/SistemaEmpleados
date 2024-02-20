@@ -5,6 +5,9 @@
 @using System.Net.Http;
 @inject IJSRuntime JSRuntime
 <body style="background-color:purple ">
+    
+    
+
     <div class=" fs-2 p-3 mb-2 bg-dark text-white  text-center">Reporte de Empleados</div>
 
 
@@ -22,13 +25,12 @@
         <table class="table table-dark table-hover">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Nombre</th>
-                    <th>Edad</th>
-                    <th>Departamento_Persona</th>
+                <th class="text-white">Id</th>
+                <th class="text-white">Nombre</th>
+                <th class="text-white">Edad</th>
+                <th class="text-white">Departamento_Persona</th>
                 </tr>
                 
-           
                
             </thead>
             <tbody>
@@ -38,6 +40,7 @@
                         <td>@_persona.Id</td>
                         <td>@_persona.Nombre</td>
                         <td>@_persona.Edad</td>
+                        <td>@ObtenerNombreDepartamento(_persona.DepartamentoId)</td>
                         <td></td>
                     </tr>
                 }
@@ -53,8 +56,8 @@
             <thead>
                     <tr><td colspan="2">Departamentos</td></tr>
                     <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
+                    <th class="text-white">Id</th>
+                    <th class="text-white">Nombre</th>
                     </tr>
             </thead>
                
@@ -73,14 +76,211 @@
 
 
     }
+   
+    <div class=" fs-3 p-3 mb-2 bg-dark text-white  text-center">Ingreso de Nuevo Empleado</div>
+    <hr />
+    @if (!string.IsNullOrEmpty(_mensajeError))
+    {
+        <p style="color: red;">@_mensajeError</p>
+    }
+
+    @if (!string.IsNullOrEmpty(_mensajeExito))
+    {
+        <p style="color: white;">@_mensajeExito</p>
+    }
+
+    <div class="contenedor">
+        <form class="form">
+            <div class="form-group">
+                <label>ID:</label>
+                <input class="form-control" @bind="_nuevaPersona.Id" />
+            </div>
+
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input class="form-control" @bind="_nuevaPersona.Nombre" />
+            </div>
+
+            <div class="form-group">
+                <label>Edad:</label>
+                <input class="form-control" @bind="_nuevaPersona.Edad" />
+            </div>
+
+            <div class="form-group">
+                <label>DepartamentoId:</label>
+                <input class="form-control" @bind="_nuevaPersona.DepartamentoId" />
+            </div>
+
+            <button type="button" class="btn btn-outline-info" @onclick="IngresarPersona">Ingresar Empleado</button>
+        </form>
+    </div>
+    <div class=" fs-3 p-3 mb-2 bg-dark text-white  text-center">Ingreso de Nuevo Departamento</div>
+    <div class="contenedor1">
+        
+        <form class="form">
+            <div class="form-group">
+                <label>ID:</label>
+                <input class="form-control" @bind="_nuevoDepartamento.Id" />
+            </div>
+
+            <div class="form-group">
+                <label>NombreDepartamento:</label>
+                <input class="form-control" @bind="_nuevoDepartamento.Nombre" />
+            </div>
+
+            <button type="button" class="btn btn-outline-info" @onclick="IngresarDepartamento">Ingresar Departamento</button>
+        </form>
+    </div>
+   <br>
+    <br>
+    <br>
+    <div class="contenedor2">
+        <form class="form1">
+            <div class="mb-3">
+                <!-- Agrega espacio arriba de los select -->
+                <label class="form-label">Empleado:</label>
+                <select class="form-select" @bind="_idPersonaSeleccionada">
+                    <option value="">-- Seleccionar Empleado --</option>
+                    @foreach (var persona in personas)
+                    {
+                        <option value="@persona.Id">@($"{persona.Nombre} {persona.Edad}")</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <!-- Agrega espacio arriba de los botones -->
+                <button type="button" class="btn btn-outline-info" @onclick="EliminarPersonaSeleccionada">Eliminar Empleado Seleccionado</button>
+            </div>
+            <div class="mb-3">
+                <!-- Agrega espacio arriba de los select -->
+                <label class="form-label">Departamento:</label>
+                <select class="form-select" @bind="_idDepartamentoSeleccionado">
+                    <option value="">-- Seleccionar Departamento --</option>
+                    @foreach (var departamento in departamentos)
+                    {
+                        <option value="@departamento.Id">@($"{departamento.Nombre}")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <!-- Agrega espacio arriba del segundo botón -->
+                <button type="button" class="btn btn-outline-info" @onclick="EliminarDepartamentoSeleccionado">Eliminar Dpto Seleccionado</button>
+            </div>
+        </form>
+    </div>
+    <hr />
+    <hr />
 
     @code {
         private String msjPersona;
-        private List<Persona> personas;
-        private List<Departamento> departamentos;
+        private List<Persona> personas = new List<Persona>();
+        private List<Departamento> departamentos = new List<Departamento>();
+        private Persona _nuevaPersona = new Persona();
+        private Departamento _nuevoDepartamento = new Departamento();
+        private string _mensajeError = string.Empty;
+        private string _mensajeExito = string.Empty;
+        private String? currentCount;
+        private int _idPersonaSeleccionada;
+        private int _idDepartamentoSeleccionado;
 
-       
+        private async Task IngresarPersona()
+        {
+            // Limpiar mensajes anteriores
+            _mensajeError = string.Empty;
+            _mensajeExito = string.Empty;
 
+            // Validación adicional antes de realizar la solicitud
+            if (_nuevaPersona.Id == 0)
+            {
+                _mensajeError = "El DNI no puede ser null.";
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_nuevaPersona.Nombre))
+            {
+                _mensajeError = "El nombre no puede ser null o vacío.";
+                return;
+            }
+
+            if (_nuevaPersona.Edad == 0)
+            {
+                _mensajeError = "El nombre no puede ser null o vacío.";
+                return;
+            }
+
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var result = await client.PostAsJsonAsync("http://host.docker.internal:5000/api/Persona/CrearPersona", _nuevaPersona);
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        // Manejar el éxito mostrando un mensaje
+                        _mensajeExito = "Empleado ingresado exitosamente";
+                    }
+                    else
+                    {
+                        // Manejar el error mostrando un mensaje
+                        _mensajeError = $"Error al ingresar empleado. Código de estado: {result.StatusCode}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Manejar la excepción mostrando un mensaje
+                    _mensajeError = $"Error: {ex.Message}";
+                }
+            }
+        }
+
+        private async Task IngresarDepartamento()
+        {
+
+            // Limpiar mensajes anteriores
+            _mensajeError = string.Empty;
+            _mensajeExito = string.Empty;
+
+            // Validación adicional antes de realizar la solicitud
+            if (_nuevoDepartamento.Id == 0 )
+            {
+                _mensajeError = "El DNI no puede ser null.";
+                return;
+            }
+
+
+            if (string.IsNullOrEmpty(_nuevoDepartamento.Nombre))
+            {
+                _mensajeError = "El nombre no puede ser null o vacío.";
+                return;
+            }
+
+
+
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var result = await client.PostAsJsonAsync("http://host.docker.internal:4000/api/Departamento/CrearDepartamento", _nuevoDepartamento);
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        // Manejar el éxito mostrando un mensaje
+                        _mensajeExito = "Departamento ingresado exitosamente";
+                    }
+                    else
+                    {
+                        // Manejar el error mostrando un mensaje
+                        _mensajeError = $"Error al ingresar empleado. Código de estado: {result.StatusCode}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Manejar la excepción mostrando un mensaje
+                    _mensajeError = $"Error: {ex.Message}";
+                }
+            }
+        }
 
 
         private async Task CargarPersonas()
@@ -96,6 +296,7 @@
                         var resultadoServicio = await result.Content.ReadAsStringAsync();
                         personas = JsonSerializer.Deserialize<List<Persona>>(resultadoServicio, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
 
+                        await CargarDepartamentos();
                         StateHasChanged();
 
                     }
@@ -131,7 +332,7 @@
                 }
             }
         }
-       /* private string ObtenerNombreDepartamento(int departamentoId)
+        private string ObtenerNombreDepartamento(int departamentoId)
         {
             if (departamentos != null)
             {
@@ -152,46 +353,113 @@
             return "Desconocido";
         }
 
-        private async Task SetPersona()
+
+
+        private async Task EliminarPersonaSeleccionada()
+        {
+            try
+            {
+                if (_idPersonaSeleccionada != 0)
+                {
+                    // Llamar al método EliminarPersona con el ID de la persona seleccionada
+                    await EliminarPersona(_idPersonaSeleccionada);
+                }
+                else
+                {
+                    // Manejar el caso cuando no se ha seleccionado ninguna persona
+                    _mensajeError = "Por favor, selecciona una persona antes de intentar eliminar.";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción mostrando un mensaje
+                _mensajeError = $"Error al eliminar persona: {ex.Message}";
+            }
+        }
+
+
+        private async Task EliminarPersona(int id)
         {
             using (var client = new HttpClient())
             {
                 try
                 {
-                    var persona = new Persona
+                    // Hacer la solicitud DELETE al endpoint del controlador para eliminar la persona
+                    var response = await client.DeleteAsync($"http://host.docker.internal:5000/api/Persona/{id}");
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        Id = 7,
-                        Nombre = "Sofia",
-
-                        Edad = 27
-                    };
-
-                    var result = await client.PostAsJsonAsync("http://host.docker.internal:5000/api/Persona/", persona);
-
-                    if (result.IsSuccessStatusCode)
-                    {
-                        msjPersona = "Persona creada";
-
-                        await CargarPersonas(); // Actualiza la lista de personas si aún no se han cargado
-
-                        StateHasChanged(); // Actualiza la vista
+                        // Manejar el éxito mostrando un mensaje
+                        _mensajeExito = $"Persona con ID {id} eliminada exitosamente.";
                     }
-
-
-
+                    else
+                    {
+                        // Manejar el error mostrando un mensaje
+                        _mensajeError = $"Error al eliminar persona. Código de estado: {response.StatusCode}";
+                    }
                 }
                 catch (Exception ex)
                 {
-                    msjPersona = ex.Message;
-                    Console.Error.WriteLine("Error en SetPersona: " + ex.Message);
+                    // Manejar la excepción mostrando un mensaje
+                    _mensajeError = $"Error en la solicitud HTTP: {ex.Message}";
                 }
             }
 
+
         }
 
-        */
-        
+        private async Task EliminarDepartamentoSeleccionado()
+        {
+            try
+            {
+                if (_idDepartamentoSeleccionado != 0)
+                {
+                    // Llamar al método EliminarPersona con el ID de la persona seleccionada
+                    await EliminarDepartamento(_idDepartamentoSeleccionado);
+                }
+                else
+                {
+                    // Manejar el caso cuando no se ha seleccionado ninguna persona
+                    _mensajeError = "Por favor, selecciona un departamento antes de intentar eliminar.";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción mostrando un mensaje
+                _mensajeError = $"Error al eliminar departamento: {ex.Message}";
+            }
+        }
 
+
+        private async Task EliminarDepartamento(int id)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    // Hacer la solicitud DELETE al endpoint del controlador para eliminar la persona
+                    var response = await client.DeleteAsync($"http://host.docker.internal:4000/api/Departamento/{id}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Manejar el éxito mostrando un mensaje
+                        _mensajeExito = $"Departamento con ID {id} eliminado exitosamente.";
+                    }
+                    else
+                    {
+                        // Manejar el error mostrando un mensaje
+                        _mensajeError = $"Error al eliminar departamento. Código de estado: {response.StatusCode}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Manejar la excepción mostrando un mensaje
+                    _mensajeError = $"Error en la solicitud HTTP: {ex.Message}";
+                }
+            }
+
+
+        }
 
 
         private async Task ReiniciarAplicacion()

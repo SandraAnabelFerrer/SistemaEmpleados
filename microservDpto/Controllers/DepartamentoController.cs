@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace microservDpto.Controllers
 {
@@ -38,11 +39,32 @@ namespace microservDpto.Controllers
             Console.WriteLine(value);
         }
         // DELETE api/<DepartamentoController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        //[HttpDelete("{id}")]
+       // public void Delete(int id)
+       // {
+        //    Console.WriteLine("Del ID : " + id);
+      //  }
+        [HttpGet("FiltrarPorDepartamento/{departamentoId}")]
+        public async Task<IActionResult> FiltrarPorDepartamento(int departamentoId)
         {
-            Console.WriteLine("Del ID : " + id);
+            try
+            {
+                var departamentosFiltrados = await context.Departamentos
+                    .Where(p => p.Id == departamentoId)
+                    .Include(p => p.Id) // Incluir la entidad relacionada Persona
+                     
+                    .ToListAsync();
+
+                return Ok(departamentosFiltrados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
+
+
+
         [HttpPost("CrearDepartamento")]
         public async Task<IActionResult> CrearDepartamento([FromBody] Departamento departamento)
         {
@@ -59,5 +81,32 @@ namespace microservDpto.Controllers
             }
 
         }
+
+        [HttpDelete("{id}")]
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var departamento = await context.Departamentos.FindAsync(id);
+
+                if (departamento == null)
+                {
+                    return NotFound(); // Retorna un código 404 si la persona no se encuentra
+                }
+
+                context.Departamentos.Remove(departamento);
+                await context.SaveChangesAsync();
+
+                return Ok(); // Retorna un código 200 OK si la eliminación es exitosa
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+
+
     }
 }
